@@ -13,17 +13,17 @@ def main():
     os.environ['HADOOP_CONF_DIR'] = '/etc/hadoop/conf'
     os.environ['YARN_CONF_DIR'] = '/etc/hadoop/conf'
     
-    #date = sys.argv[1]
-    #days_cnt = sys.argv[2]
-    #events_base_path = sys.argv[3]
-    #au_cities_path = sys.argv[4]
-    #output_path = sys.argv[5]
-    date="2022-05-31"
-    num_days=30
-    events_base_path="/user/farrukhrus/data/geo/events"
+    date = sys.argv[1]
+    num_days = sys.argv[2]
+    events_base_path = sys.argv[3]
+    au_cities_path = sys.argv[4]
+    output_path = sys.argv[5]
+    #date="2022-05-31"
+    #num_days=30
+    #events_base_path="/user/farrukhrus/data/geo/events"
     #au_cities_path="/user/farrukhrus/data/geo.csv"
-    au_cities_path="/user/farrukhrus/data/cities_tz.csv"
-    output_path="/user/farrukhrus/data/analytics/recomm_dm"
+    #au_cities_path="/user/farrukhrus/data/cities_tz.csv"
+    #output_path="/user/farrukhrus/data/analytics/recomm_dm"
     
     conf = SparkConf().setAppName(f"usersd")
     sc = SparkContext(conf=conf)
@@ -39,7 +39,7 @@ def main():
     recomm_dm.write.mode("overwrite").parquet(f"{output_path}/date={date}/depth={num_days}")
 
 def calculate_distance(messages_df):
-    window = Window().partitionBy(["user_id", "date"]).orderBy(F.desc("datetime"))
+    window = Window().partitionBy(["user_id"]).orderBy(F.desc("datetime"))
     users = (
         messages_df.select(
             "user_id", "date", "datetime", "message_lat", "message_lon", "city"
@@ -143,13 +143,14 @@ def calculate_recommendations_datamart(events, au_cities):
         .join(messages_pairs, on=["user_id", "user_right"], how="leftanti")
         .join(local_time, on="user_id", how="left")
         .select(
+            F.col("local_time"),
             F.col("user_id").alias("user_left"),
             "user_right",
             F.col("date").alias("processed_dttm"),
             F.col("city").alias("zone_id"),
         )
     )
-    recomm_dm.show(10, True)
+    #recomm_dm.show(10, True)
 
     return recomm_dm
 

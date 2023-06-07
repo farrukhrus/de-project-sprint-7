@@ -13,17 +13,17 @@ def main():
     os.environ['HADOOP_CONF_DIR'] = '/etc/hadoop/conf'
     os.environ['YARN_CONF_DIR'] = '/etc/hadoop/conf'
     
-    #date = sys.argv[1]
-    #days_cnt = sys.argv[2]
-    #events_base_path = sys.argv[3]
-    #au_cities_path = sys.argv[4]
-    #output_path = sys.argv[5]
-    date="2022-05-31"
-    num_days=30
-    events_base_path="/user/farrukhrus/data/geo/events"
+    date = sys.argv[1]
+    num_days = sys.argv[2]
+    events_base_path = sys.argv[3]
+    au_cities_path = sys.argv[4]
+    output_path = sys.argv[5]
+    #date="2022-05-31"
+    #num_days=30
+    #events_base_path="/user/farrukhrus/data/geo/events"
     #au_cities_path="/user/farrukhrus/data/geo.csv"
-    au_cities_path="/user/farrukhrus/data/cities_tz.csv"
-    output_path="/user/farrukhrus/data/analytics/zone_dm"
+    #au_cities_path="/user/farrukhrus/data/cities_tz.csv"
+    #output_path="/user/farrukhrus/data/analytics/zone_dm"
     
     conf = SparkConf().setAppName(f"usersd")
     sc = SparkContext(conf=conf)

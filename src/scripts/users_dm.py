@@ -13,17 +13,17 @@ def main():
     os.environ['HADOOP_CONF_DIR'] = '/etc/hadoop/conf'
     os.environ['YARN_CONF_DIR'] = '/etc/hadoop/conf'
     
-    #date = sys.argv[1]
-    #days_cnt = sys.argv[2]
-    #events_base_path = sys.argv[3]
-    #au_cities_path = sys.argv[4]
-    #output_path = sys.argv[5]
-    date="2022-05-31"
-    num_days=30
-    events_base_path="/user/farrukhrus/data/geo/events"
+    date = sys.argv[1]
+    num_days = sys.argv[2]
+    events_base_path = sys.argv[3]
+    au_cities_path = sys.argv[4]
+    output_path = sys.argv[5]
+    #date="2022-05-31"
+    #num_days=30
+    #events_base_path="/user/farrukhrus/data/geo/events"
     #au_cities_path="/user/farrukhrus/data/geo.csv"
-    au_cities_path="/user/farrukhrus/data/cities_tz.csv"
-    output_path="/user/farrukhrus/data/analytics/users_dm"
+    #au_cities_path="/user/farrukhrus/data/cities_tz.csv"
+    #output_path="/user/farrukhrus/data/analytics/users_dm"
     
     conf = SparkConf().setAppName(f"usersd")
     sc = SparkContext(conf=conf)
@@ -84,7 +84,7 @@ def users_dm(events, au_cities):
     
     # residents
     days_for_residency = 27
-    home_window = Window().partitionBy(["user_id"]).orderBy(F.desc("days_in"), F.desc("date"))
+    home_window = Window().partitionBy(["user_id"]).orderBy(F.desc("date"))
     home_city = visits.where(f"days_in>={days_for_residency}")\
         .withColumn("rn_home", F.row_number().over(home_window))\
         .where(f"rn_home=1")\
@@ -102,8 +102,6 @@ def users_dm(events, au_cities):
         .withColumn("local_time", F.from_utc_timestamp(F.col("datetime"), F.col("city_tz")))\
         .drop("datetime", "city_tz", "rn")
     
-    local_time.show(10, False)
-
     # final
     return active.join(home_city, on="user_id", how="left")\
         .join(travel_cities, on="user_id", how="left")\
